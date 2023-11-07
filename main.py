@@ -6,7 +6,7 @@ from datetime import datetime
 
 CLIENT_NAME = os.environ.get("CLIENT_NAME")
 BROKER_HOST = os.environ.get("BROKER_HOST")
-BROKER_PORT = os.environ.get("BROKER_PORT")
+BROKER_PORT = int(os.environ.get("BROKER_PORT"))
 TOPIC = os.environ.get("TOPIC")
 
 
