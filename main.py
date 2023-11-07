@@ -24,26 +24,29 @@ def on_message(client, userdata, msg):
 
 
 def main():
-    client = mqtt.Client(CLIENT_NAME)
-    client.on_connect = on_connect
+    while True:
+        try:
+            client = mqtt.Client(CLIENT_NAME)
+            client.on_connect = on_connect
 
-    client.connect(host=BROKER_HOST, port=BROKER_PORT)
+            client.connect(host=BROKER_HOST, port=BROKER_PORT)
 
-    client.loop_start()
 
-    try:
-        while True:
-            time.sleep(10)
-
-            message = f'{CLIENT_NAME} {20}'
+            message = f'{CLIENT_NAME}: {20}'
             result = client.publish(TOPIC, message)
 
             if not result[0]:
                 print(f'{datetime.utcnow()} message is publish')
             else:
                 print(f'{datetime.utcnow()} message is not publish')
-    finally:
-        client.loop_stop()
+
+            client.disconnect()
+        finally:
+            print(f'{datetime.utcnow()} | {e}')
+            time.sleep(5)
+            main()
+
+        time.sleep(10)
 
 
 if __name__ == '__main__':
