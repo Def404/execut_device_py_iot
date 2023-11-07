@@ -10,7 +10,6 @@ BROKER_PORT = int(os.environ.get("BROKER_PORT"))
 TOPIC = os.environ.get("TOPIC")
 
 
-# The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     if not rc:
         print(f'{datetime.utcnow()} | {client} connect to broker', flush=True)
@@ -18,35 +17,21 @@ def on_connect(client, userdata, flags, rc):
         print(f'{datetime.utcnow()} | {client} not connect to broker {rc}', flush=True)
 
 
-# The callback for when a PUBLISH message is received from the server.
-def on_message(client, userdata, msg):
-    print(msg.topic + " " + str(msg.payload))
-
-
 def main():
+    client = mqtt.Client(CLIENT_NAME)
+    client.on_connect = on_connect
+    client.connect(host=BROKER_HOST, port=BROKER_PORT)
+    client.loop_start()
+
     while True:
-        try:
-            client = mqtt.Client(CLIENT_NAME)
-            client.on_connect = on_connect
-
-            client.connect(host=BROKER_HOST, port=BROKER_PORT)
-
-
-            message = f'{CLIENT_NAME}: {20}'
-            result = client.publish(TOPIC, message)
-
-            if not result[0]:
-                print(f'{datetime.utcnow()} message is publish')
-            else:
-                print(f'{datetime.utcnow()} message is not publish')
-
-            client.disconnect()
-        finally:
-            print(f'{datetime.utcnow()} | error')
-            time.sleep(5)
-            main()
-
         time.sleep(10)
+        msg = f'{datetime.utcnow()} | Temt: {20}'
+        result = client.publish(TOPIC, msg)
+        status = result[0]
+        if status == 0:
+            print(f'{datetime.utcnow()} | Publish message to topic: {TOPIC}')
+        else:
+            print(f'{datetime.utcnow()} | Not publish message to topic: {TOPIC}')
 
 
 if __name__ == '__main__':
