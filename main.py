@@ -1,16 +1,50 @@
-# This is a sample Python script.
+import os
+import time
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import paho.mqtt.client as mqtt
+from datetime import datetime
+
+CLIENT_NAME = os.environ.get("CLIENT_NAME")
+BROKER_HOST = os.environ.get("BROKER_HOST")
+BROKER_PORT = os.environ.get("BROKER_PORT")
+TOPIC = os.environ.get("TOPIC")
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, flags, rc):
+    if not rc:
+        print(f'{datetime.utcnow()} | {client} connect to broker', flush=True)
+    else:
+        print(f'{datetime.utcnow()} | {client} not connect to broker {rc}', flush=True)
 
 
-# Press the green button in the gutter to run the script.
+# The callback for when a PUBLISH message is received from the server.
+def on_message(client, userdata, msg):
+    print(msg.topic + " " + str(msg.payload))
+
+
+def main():
+    client = mqtt.Client(CLIENT_NAME)
+    client.on_connect = on_connect
+
+    client.connect(host=BROKER_HOST, port=BROKER_PORT)
+
+    client.loop_start()
+
+    try:
+        while True:
+            time.sleep(10)
+
+            message = f'{CLIENT_NAME} {20}'
+            result = client.publish(TOPIC, message)
+
+            if not result[0]:
+                print(f'{datetime.utcnow()} message is publish')
+            else:
+                print(f'{datetime.utcnow()} message is not publish')
+    finally:
+        client.loop_stop()
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()
