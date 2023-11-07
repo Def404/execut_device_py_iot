@@ -42,7 +42,7 @@ def main():
 
             client.disconnect()
         finally:
-            print(f'{datetime.utcnow()} | {e}')
+            print(f'{datetime.utcnow()} | error')
             time.sleep(5)
             main()
 
